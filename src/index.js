@@ -15,7 +15,7 @@ app.post("/users", (request, response) => {
   user
     .save()
     .then(() => {
-      response.send(user);
+      response.status(201).send(user);
     })
     .catch(error => {
       response.status(400).send(error);
@@ -28,7 +28,7 @@ app.post("/tasks", (request, response) => {
   task
     .save()
     .then(() => {
-      response.send(task);
+      response.status(201).send(task);
     })
     .catch(error => {
       response.status(400).send(error);
