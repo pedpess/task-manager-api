@@ -23,7 +23,7 @@ app.post("/users", (request, response) => {
 });
 
 app.get("/users", (request, response) => {
-  User.find()
+  User.find({})
     .then(users => {
       response.send(users);
     })
@@ -58,6 +58,32 @@ app.post("/tasks", (request, response) => {
     })
     .catch(error => {
       response.status(400).send(error);
+    });
+});
+
+app.get("/tasks", (request, response) => {
+  Task.find({})
+    .then(tasks => {
+      response.send(tasks);
+    })
+    .catch(error => {
+      response.status(500).send(error);
+    });
+});
+
+app.get("/tasks/:id", (request, response) => {
+  const _id = request.params.id;
+
+  Task.findById(_id)
+    .then(task => {
+      if (!task) {
+        return response.status(404).send();
+      }
+
+      response.send(task);
+    })
+    .catch(error => {
+      response.status(500).send(error);
     });
 });
 
