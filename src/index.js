@@ -9,82 +9,76 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-app.post("/users", (request, response) => {
+app.post("/users", async (request, response) => {
   const user = new User(request.body);
 
-  user
-    .save()
-    .then(() => {
-      response.status(201).send(user);
-    })
-    .catch(error => {
-      response.status(400).send(error);
-    });
+  try {
+    await user.save();
+    response.status(201).send(user);
+  } catch (e) {
+    response.status(400).send(e);
+  }
 });
 
-app.get("/users", (request, response) => {
-  User.find({})
-    .then(users => {
-      response.send(users);
-    })
-    .catch(error => {
-      response.status(500).send(error);
-    });
+app.get("/users", async (request, response) => {
+  try {
+    const users = await User.find({});
+    response.send(users);
+  } catch (e) {
+    response.status(500).send(e);
+  }
 });
 
-app.get("/users/:id", (request, response) => {
+app.get("/users/:id", async (request, response) => {
   const _id = request.params.id;
 
-  User.findById(_id)
-    .then(user => {
-      if (!user) {
-        return response.status(404).send();
-      }
+  try {
+    const user = await User.findById(_id);
 
-      response.send(user);
-    })
-    .catch(error => {
-      response.status(500).send(error);
-    });
+    if (!user) {
+      return response.status(404).send();
+    }
+
+    response.send(user);
+  } catch (e) {
+    response.status(500).send(e);
+  }
 });
 
-app.post("/tasks", (request, response) => {
+app.post("/tasks", async (request, response) => {
   const task = new Task(request.body);
 
-  task
-    .save()
-    .then(() => {
-      response.status(201).send(task);
-    })
-    .catch(error => {
-      response.status(400).send(error);
-    });
+  try {
+    await task.save();
+    response.status(201).send(task);
+  } catch (e) {
+    response.status(400).send(e);
+  }
 });
 
-app.get("/tasks", (request, response) => {
-  Task.find({})
-    .then(tasks => {
-      response.send(tasks);
-    })
-    .catch(error => {
-      response.status(500).send(error);
-    });
+app.get("/tasks", async (request, response) => {
+  try {
+    const tasks = await Task.find({});
+    response.send(tasks);
+  } catch (e) {
+    response.status(500).send(e);
+  }
 });
 
-app.get("/tasks/:id", (request, response) => {
+app.get("/tasks/:id", async (request, response) => {
   const _id = request.params.id;
 
-  Task.findById(_id)
-    .then(task => {
-      if (!task) {
-        return response.status(404).send();
-      }
+  try {
+    const task = await Task.findById(_id);
 
-      response.send(task);
-    })
-    .catch(error => {
-      response.status(500).send(error);
-    });
+    if (!task) {
+      return response.status(404).send();
+    }
+
+    response.send(task);
+  } catch (e) {
+    response.status(500).send(e);
+  }
 });
 
 app.listen(port, () => {
