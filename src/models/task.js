@@ -13,9 +13,4 @@ const Task = mongoose.model("Task", {
   }
 });
 
-const me = new User({
-  name: "Pedro",
-  age: 28
-});
-
 module.exports = Task;
