@@ -75,6 +75,22 @@ app.patch("/users/:id", async (request, response) => {
   }
 });
 
+app.delete("/users/:id", async (request, response) => {
+  const _id = request.params.id;
+
+  try {
+    const user = await User.findByIdAndDelete(_id);
+
+    if (!user) {
+      return response.status(404).send();
+    }
+
+    response.send(user);
+  } catch (e) {
+    response.status(500).send(e);
+  }
+});
+
 app.post("/tasks", async (request, response) => {
   const task = new Task(request.body);
 
