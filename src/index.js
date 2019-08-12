@@ -50,7 +50,7 @@ app.patch("/users/:id", async (request, response) => {
   const _requestBody = request.body;
 
   const allowedUpdates = ["name", "email", "password", "age"];
-  const updates = Object.keys(request.body);
+  const updates = Object.keys(_requestBody);
   const isValidOperation = updates.every(update =>
     allowedUpdates.includes(update)
   );
@@ -108,6 +108,36 @@ app.get("/tasks/:id", async (request, response) => {
     response.send(task);
   } catch (e) {
     response.status(500).send(e);
+  }
+});
+
+app.patch("/tasks/:id", async (request, response) => {
+  const _id = request.params.id;
+  const _requestBody = request.body;
+
+  const allowedUpdates = ["description", "completed"];
+  const updates = Object.keys(_requestBody);
+  const isValidOperation = updates.every(update =>
+    allowedUpdates.includes(update)
+  );
+
+  if (!isValidOperation) {
+    return response.status(400).send({ error: "Invalid updates!" });
+  }
+
+  try {
+    const task = await Task.findByIdAndUpdate(_id, _requestBody, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!task) {
+      return response.status(404).send();
+    }
+
+    response.send(task);
+  } catch (e) {
+    response.status(400).send(e);
   }
 });
 
