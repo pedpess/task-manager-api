@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const router = new express.Router();
 
 const User = require("../models/user");
+const auth = require("../middleware/auth");
 
 router.post("/users", async (request, response) => {
   const user = new User(request.body);
@@ -31,13 +32,8 @@ router.post("/users/login", async (request, response) => {
   }
 });
 
-router.get("/users", async (request, response) => {
-  try {
-    const users = await User.find({});
-    response.send(users);
-  } catch (e) {
-    response.status(500).send(e);
-  }
+router.get("/users/me", auth, async (request, response) => {
+  response.send(request.user);
 });
 
 router.get("/users/:id", async (request, response) => {

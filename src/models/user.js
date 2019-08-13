@@ -56,7 +56,7 @@ userSchema.methods.generateAuthToken = async function() {
 
   user.tokens = user.tokens.concat({ token });
 
-  await user.save();
+  await user.save();  
 
   return token;
 };
