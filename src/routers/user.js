@@ -14,6 +14,19 @@ router.post("/users", async (request, response) => {
   }
 });
 
+router.post("/users/login", async (request, response) => {
+  try {
+    const user = await User.findByCredentials(
+      request.body.email,
+      request.body.password
+    );
+
+    response.send(user);
+  } catch (e) {
+    response.status(400).send();
+  }
+});
+
 router.get("/users", async (request, response) => {
   try {
     const users = await User.find({});
@@ -58,7 +71,7 @@ router.patch("/users/:id", async (request, response) => {
 
     updates.forEach(update => {
       user[update] = _requestBody[update];
-    })
+    });
 
     await user.save();
 
