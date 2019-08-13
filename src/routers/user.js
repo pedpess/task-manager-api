@@ -1,4 +1,5 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const router = new express.Router();
 
 const User = require("../models/user");
@@ -8,7 +9,8 @@ router.post("/users", async (request, response) => {
 
   try {
     await user.save();
-    response.status(201).send(user);
+    const token = await user.generateAuthToken();
+    response.status(201).send({ user, token });
   } catch (e) {
     response.status(400).send(e);
   }
@@ -21,7 +23,9 @@ router.post("/users/login", async (request, response) => {
       request.body.password
     );
 
-    response.send(user);
+    const token = await user.generateAuthToken();
+
+    response.send({ user, token });
   } catch (e) {
     response.status(400).send();
   }
