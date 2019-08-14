@@ -57,23 +57,7 @@ router.get("/users/me", auth, async (request, response) => {
   response.send(request.user);
 });
 
-router.get("/users/:id", async (request, response) => {
-  const _id = request.params.id;
-
-  try {
-    const user = await User.findById(_id);
-
-    if (!user) {
-      return response.status(404).send();
-    }
-
-    response.send(user);
-  } catch (e) {
-    response.status(500).send(e);
-  }
-});
-
-router.patch("/users/:id", async (request, response) => {
+router.patch("/users/me", auth, async (request, response) => {
   const _id = request.params.id;
   const _requestBody = request.body;
 
@@ -88,35 +72,23 @@ router.patch("/users/:id", async (request, response) => {
   }
 
   try {
-    const user = await User.findById(_id);
-
     updates.forEach(update => {
-      user[update] = _requestBody[update];
+      request.user[update] = _requestBody[update];
     });
-
-    await user.save();
-
-    if (!user) {
-      return response.status(404).send();
-    }
-
-    response.send(user);
+    
+    await request.user.save();
+    response.send(request.user);
   } catch (e) {
     response.status(400).send(e);
   }
 });
 
-router.delete("/users/:id", async (request, response) => {
-  const _id = request.params.id;
+router.delete("/users/me", auth, async (request, response) => {
+  const _id = request.user._id;
 
   try {
-    const user = await User.findByIdAndDelete(_id);
-
-    if (!user) {
-      return response.status(404).send();
-    }
-
-    response.send(user);
+    await request.user.remove();
+    response.send(request.user);
   } catch (e) {
     response.status(500).send(e);
   }
