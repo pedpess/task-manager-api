@@ -27,11 +27,11 @@ router.get("/tasks", auth, async (request, response) => {
   }
 });
 
-router.get("/tasks/:id", async (request, response) => {
+router.get("/tasks/:id", auth, async (request, response) => {
   const _id = request.params.id;
 
   try {
-    const task = await Task.findById(_id);
+    const task = await Task.findOne({ _id, owner: request.user._id });
 
     if (!task) {
       return response.status(404).send();
@@ -58,7 +58,7 @@ router.patch("/tasks/:id", auth, async (request, response) => {
   }
 
   try {
-    const task = await Task.findOne({ _id: _id, owner: request.user._id });
+    const task = await Task.findOne({ _id, owner: request.user._id });
 
     if (!task) {
       return response.status(404).send();
@@ -81,7 +81,7 @@ router.delete("/tasks/:id", auth, async (request, response) => {
 
   try {
     const task = await Task.findOneAndDelete({
-      _id: _id,
+      _id,
       owner: request.user._id
     });
 
