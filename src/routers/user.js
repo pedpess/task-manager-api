@@ -58,7 +58,6 @@ router.get("/users/me", auth, async (request, response) => {
 });
 
 router.patch("/users/me", auth, async (request, response) => {
-  const _id = request.params.id;
   const _requestBody = request.body;
 
   const allowedUpdates = ["name", "email", "password", "age"];
@@ -84,7 +83,6 @@ router.patch("/users/me", auth, async (request, response) => {
 });
 
 router.delete("/users/me", auth, async (request, response) => {
-  const _id = request.user._id;
 
   try {
     await request.user.remove();

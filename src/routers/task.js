@@ -5,7 +5,6 @@ const auth = require("../middleware/auth");
 const Task = require("../models/task");
 
 router.post("/tasks", auth, async (request, response) => {
-
   const task = new Task({
     ...request.body,
     owner: request.user._id
@@ -19,10 +18,10 @@ router.post("/tasks", auth, async (request, response) => {
   }
 });
 
-router.get("/tasks", async (request, response) => {
+router.get("/tasks", auth, async (request, response) => {
   try {
-    const tasks = await Task.find({});
-    response.send(tasks);
+    await request.user.populate("tasks").execPopulate();
+    response.send(request.user.tasks);
   } catch (e) {
     response.status(500).send(e);
   }
@@ -44,7 +43,7 @@ router.get("/tasks/:id", async (request, response) => {
   }
 });
 
-router.patch("/tasks/:id", async (request, response) => {
+router.patch("/tasks/:id", auth, async (request, response) => {
   const _id = request.params.id;
   const _requestBody = request.body;
 
@@ -59,7 +58,11 @@ router.patch("/tasks/:id", async (request, response) => {
   }
 
   try {
-    const task = await Task.findById(_id);
+    const task = await Task.findOne({ _id: _id, owner: request.user._id });
+
+    if (!task) {
+      return response.status(404).send();
+    }
 
     updates.forEach(update => {
       task[update] = _requestBody[update];
@@ -67,21 +70,20 @@ router.patch("/tasks/:id", async (request, response) => {
 
     await task.save();
 
-    if (!task) {
-      return response.status(404).send();
-    }
-
     response.send(task);
   } catch (e) {
     response.status(400).send(e);
   }
 });
 
-router.delete("/tasks/:id", async (request, response) => {
+router.delete("/tasks/:id", auth, async (request, response) => {
   const _id = request.params.id;
 
   try {
-    const task = await Task.findByIdAndDelete(_id);
+    const task = await Task.findOneAndDelete({
+      _id: _id,
+      owner: request.user._id
+    });
 
     if (!task) {
       return response.status(404).send();
