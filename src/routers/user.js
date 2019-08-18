@@ -118,10 +118,23 @@ router.post(
   }
 );
 
-router.delete('/users/me/avatar', auth, async (request, response) => {
+router.delete("/users/me/avatar", auth, async (request, response) => {
   request.user.avatar = undefined;
   await request.user.save();
   response.send();
-})
+});
+
+router.get("/users/:id/avatar", async (request, response) => {
+  try {
+    const user = await User.findById(request.params.id);
+    if (!user || !user.avatar) {
+      throw new Error();
+    }
+    response.set("Content-Type", "image/jpg");
+    response.send(user.avatar);
+  } catch (e) {
+    response.status(404).send(e);
+  }
+});
 
 module.exports = router;
