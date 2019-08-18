@@ -1,6 +1,10 @@
 const express = require("express");
 const multer = require("multer");
 const sharp = require("sharp");
+const {
+  sendWelcomeEmail,
+  sendRetentionEmail
+} = require("../services/sendgrid");
 const router = new express.Router();
 
 const User = require("../models/user");
@@ -11,6 +15,7 @@ router.post("/users", async (request, response) => {
 
   try {
     await user.save();
+    sendWelcomeEmail(user.email, user.name);
     const token = await user.generateAuthToken();
     response.status(201).send({ user, token });
   } catch (e) {
@@ -86,6 +91,7 @@ router.patch("/users/me", auth, async (request, response) => {
 router.delete("/users/me", auth, async (request, response) => {
   try {
     await request.user.remove();
+    sendRetentionEmail(request.user.email, request.user.name);
     response.send(request.user);
   } catch (e) {
     response.status(500).send(e);
