@@ -118,4 +118,10 @@ router.post(
   }
 );
 
+router.delete('/users/me/avatar', auth, async (request, response) => {
+  request.user.avatar = undefined;
+  await request.user.save();
+  response.send();
+})
+
 module.exports = router;
