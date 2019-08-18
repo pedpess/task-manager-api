@@ -1,5 +1,5 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
+const multer = require("multer");
 const router = new express.Router();
 
 const User = require("../models/user");
@@ -74,7 +74,7 @@ router.patch("/users/me", auth, async (request, response) => {
     updates.forEach(update => {
       request.user[update] = _requestBody[update];
     });
-    
+
     await request.user.save();
     response.send(request.user);
   } catch (e) {
@@ -83,7 +83,6 @@ router.patch("/users/me", auth, async (request, response) => {
 });
 
 router.delete("/users/me", auth, async (request, response) => {
-
   try {
     await request.user.remove();
     response.send(request.user);
@@ -91,5 +90,32 @@ router.delete("/users/me", auth, async (request, response) => {
     response.status(500).send(e);
   }
 });
+
+const upload = multer({
+  limits: {
+    fileSize: 1000000
+  },
+  fileFilter(request, file, callback) {
+    if (file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      return callback(new Error("Please upload an image file"));
+    }
+
+    callback(undefined, true);
+  }
+});
+
+router.post(
+  "/users/me/avatar",
+  auth,
+  upload.single("avatar"),
+  async (request, response) => {
+    request.user.avatar = request.file.buffer;
+    await request.user.save();
+    response.send();
+  },
+  (error, request, response, next) => {
+    response.status(400).send({ error: error.message });
+  }
+);
 
 module.exports = router;
